@@ -1,2 +1,3 @@
 flask
 py-algorand-sdk
+python-dotenv
