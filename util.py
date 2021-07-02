@@ -2,6 +2,8 @@ from dotenv import dotenv_values
 from algosdk.v2client import algod
 from algosdk import account, mnemonic
 
+import json
+
 
 def get_account():
     env = dotenv_values(".env")
@@ -16,3 +18,8 @@ def get_account():
     passphrase = env["MNEMONIC"]
 
     return algod_client, passphrase
+
+
+def send(quantity, receiver, note):
+    algod_client, passphrase = get_account()
+    pass

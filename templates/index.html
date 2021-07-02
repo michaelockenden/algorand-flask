@@ -5,16 +5,5 @@
     {{ address }}
     <h2>Current Balance<br>
     {{ balance }}</h2>
-    <h2>Send Algorand</h2>
-    {% include 'send.html' %}
-    {% with messages = get_flashed_messages() %}
-      {% if messages %}
-        <ul class=flashes>
-        {% for message in messages %}
-          <li>{{ message }}</li>
-        {% endfor %}
-        </ul>
-      {% endif %}
-    {% endwith %}
-    <h2>Transactions:</h2>
+    <a href="{{ url_for('send') }}"><h2>Send Algorand</h2></a>
 {% endblock %}

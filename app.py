@@ -1,13 +1,13 @@
-from flask import Flask, render_template, request, redirect, flash
-from algosdk.v2client import algod
+from flask import Flask, render_template, request, redirect, flash, url_for
+from dotenv import dotenv_values
 from algosdk import account, mnemonic
 
-import json
-
 from util import get_account
+from forms import SendForm
 
 app = Flask(__name__)
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
+env = dotenv_values(".env")
+app.config['SECRET_KEY'] = env['SECRET_KEY']
 
 
 @app.route('/')
@@ -19,7 +19,11 @@ def index():
     return render_template('index.html', balance=balance, address=address)
 
 
-@app.route('/send', methods=['POST'])
+@app.route('/send', methods=['GET', 'POST'])
 def send():
-    flash(request.form)
-    return redirect('/')
+    form = SendForm()
+    if form.validate_on_submit():
+        return redirect(url_for('index'))
+
+    # show the form, it wasn't submitted
+    return render_template('send.html', form=form)

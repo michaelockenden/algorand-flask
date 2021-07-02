@@ -1,7 +1,28 @@
-<form action="/send" method="post">
-    <input type="text" name="quantity" placeholder="Quantity" required/>
-    <br>
-    <input type="text" name="address" placeholder="Receiving Address" required/>
-    <br>
-    <input type="submit" value="Send"/>
-</form>
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Send Algorand</h1>
+    <form action="{{ url_for('send') }}" method="post">
+        {{ form.csrf_token }}
+
+        {{ form.quantity }}
+        <br>
+        {{ form.receiver }}
+        <br>
+        {{ form.note }}
+        <br><br>
+        {{ form.submit }}
+        <br>
+
+        {% if form.quantity.errors %}
+            {% for error in form.quantity.errors %}
+                <h3>{{ error }}</h3>
+            {% endfor %}
+        {% endif %}
+        {% if form.receiver.errors %}
+            {% for error in form.quantity.errors %}
+                <h3>{{ error }}</h3>
+            {% endfor %}
+        {% endif %}
+    </form>
+{% endblock %}
