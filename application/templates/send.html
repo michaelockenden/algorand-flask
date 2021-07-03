@@ -1,8 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'layout.html' %}
 
 {% block content %}
     <h1>Send Algorand</h1>
-    <form action="{{ url_for('send') }}" method="post">
+    <form action="{{ url_for('main_bp.send') }}" method="post">
         {{ form.csrf_token }}
 
         {{ form.quantity }}

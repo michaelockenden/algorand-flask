@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/nav.css') }}">
     <title>Wallet</title>
 </head>
 <body>
-<div>
+    {% include 'nav.html' %}
+<div class="content">
     {% block content %} {% endblock %}
 </div>
 </body>

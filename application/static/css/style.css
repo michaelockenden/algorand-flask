@@ -1,6 +1,6 @@
 body {
+    margin: 0;
     font-family: helvetica;
-    text-align: center;
     color: black;
     background-color: whitesmoke;
 }
@@ -16,6 +16,10 @@ h2 {
 
 h3 {
     font-szie: 16px;
+}
+
+.content {
+    text-align: center;
 }
 
 input {
