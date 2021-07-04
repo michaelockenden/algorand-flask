@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import DecimalField, StringField, SubmitField
-from wtforms.validators import InputRequired, Optional
+from wtforms.validators import InputRequired, Optional, Length
 
 
 class SendForm(FlaskForm):
@@ -11,7 +11,7 @@ class SendForm(FlaskForm):
     )
     receiver = StringField(
         'Receiver',
-        validators=[InputRequired()],
+        validators=[InputRequired(), Length(min=58, max=58)],
         render_kw={"placeholder": "Receiver Address"}
     )
     note = StringField(

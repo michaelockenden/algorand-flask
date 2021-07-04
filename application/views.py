@@ -3,6 +3,7 @@ from algosdk import mnemonic
 
 from config import get_account
 from .forms import SendForm
+from .algod import get_balance, send_transaction
 
 main_bp = Blueprint(
     'main_bp', __name__,
@@ -13,17 +14,15 @@ main_bp = Blueprint(
 
 @main_bp.route('/')
 def index():
-    algod_client, passphrase = get_account()
-    address = mnemonic.to_public_key(passphrase)
-    account_info = algod_client.account_info(address)
-    balance = account_info.get('amount') / 1000000
-    return render_template('index.html', balance=balance, address=address)
+    balance = get_balance()
+    return render_template('index.html', balance=balance)
 
 
 @main_bp.route('/send', methods=['GET', 'POST'])
 def send():
     form = SendForm()
     if form.validate_on_submit():
+        send_transaction(int(form.quantity.data), form.receiver.data, form.note.data)
         return redirect(url_for('main_bp.index'))
 
     # show the form, it wasn't submitted
