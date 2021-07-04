@@ -2,16 +2,25 @@
 
 {% block content %}
     <h1>Send Algorand</h1>
+    <div class="form">
     <form action="{{ url_for('main_bp.send') }}" method="post">
         {{ form.csrf_token }}
 
+        {{ form.quantity.label }}
+        <br>
         {{ form.quantity }}
+        <br><br>
+        {{ form.receiver.label }}
         <br>
         {{ form.receiver }}
+        <br><br>
+        {{ form.note.label }}
         <br>
         {{ form.note }}
         <br><br>
+        <div class="form">
         {{ form.submit }}
+        </div>
         <br>
 
         {% if form.quantity.errors %}
@@ -20,9 +29,10 @@
             {% endfor %}
         {% endif %}
         {% if form.receiver.errors %}
-            {% for error in form.quantity.errors %}
+            {% for error in form.receiver.errors %}
                 <h3>{{ error }}</h3>
             {% endfor %}
         {% endif %}
     </form>
+    </div>
 {% endblock %}

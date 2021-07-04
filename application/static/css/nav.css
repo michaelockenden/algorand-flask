@@ -1,6 +1,6 @@
 /* Add a black background color to the top navigation */
 .topnav {
-    background-color: lightgrey;
+    background-color: whitesmoke;
     padding: 20px;
     text-align: center;
 }
@@ -18,7 +18,7 @@
 
 /* Change the color of links on hover */
 .topnav a:hover {
-    background-color: silver;
+    background-color: lightgrey;
     color: black;
 }
 

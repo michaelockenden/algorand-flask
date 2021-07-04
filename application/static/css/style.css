@@ -2,7 +2,6 @@ body {
     margin: 0;
     font-family: helvetica;
     color: black;
-    background-color: whitesmoke;
 }
 
 h1 {
@@ -10,22 +9,37 @@ h1 {
     padding-top: 20px;
 }
 
-h2 {
-    font-size: 28px;
+.container {
+    display: flex;
+    justify-content: center;
 }
-
-h3 {
-    font-szie: 16px;
-}
-
 .content {
     text-align: center;
+    padding: 15px;
+    margin: 40px;
+    border-radius: 12px;
+    background-color: whitesmoke;
+    width: 60%;
+    height: 80%;
+    position: absolute;
+}
+
+div.form {
+    display: block;
+    text-align: center;
+}
+
+form {
+    display: inline-block;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
 }
 
 input {
     width: 280px;
     padding: 12px;
-    margin: 12px;
+    margin-bottom: 12px;
     border-radius: 6px;
     border: 2px solid grey;
     box-sizing: content-box;
