@@ -17,11 +17,11 @@ h1 {
     text-align: center;
     padding: 15px;
     margin: 40px;
-    border-radius: 12px;
+    border-radius: 24px;
     background-color: whitesmoke;
     width: 60%;
-    height: 80%;
     position: absolute;
+    padding-bottom: 48px;
 }
 
 div.form {
@@ -36,16 +36,17 @@ form {
     text-align: left;
 }
 
-input {
+input, .select {
     width: 280px;
     padding: 12px;
     margin-bottom: 12px;
     border-radius: 6px;
     border: 2px solid grey;
     box-sizing: content-box;
+    text-decoration: none;
 }
 
-input[type=submit] {
+input[type=submit], .select {
     font-size: 16px;
     font-weight: bold;
     border: 3px solid black;
@@ -55,8 +56,20 @@ input[type=submit] {
     color: black;
 }
 
-input[type=submit]:hover {
+input[type=submit]:hover, .select:hover {
     background-color: lightcoral;
     color: white;
     cursor: pointer;
+}
+
+table {
+    text-align: left;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+th, td {
+    border-bottom: 1px solid lightgrey;
+    padding: 4px;
+    padding-right: 16px;
 }

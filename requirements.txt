@@ -3,4 +3,3 @@ flask-login
 flask-wtf
 py-algorand-sdk
 python-dotenv
-wtforms

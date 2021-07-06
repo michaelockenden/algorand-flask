@@ -27,3 +27,8 @@
     background-color: darkslategrey;
     color: white;
 }
+
+.topnav a.logout {
+    background-color: lightcoral;
+    color: white;
+}

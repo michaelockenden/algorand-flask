@@ -1,32 +1,44 @@
 from algosdk.v2client import algod
 from algosdk import account, mnemonic
+from algosdk.constants import microalgos_to_algos_ratio
 from algosdk.future.transaction import PaymentTxn
 
 from config import get_account
 
-MICRO = 1000000
+
+def algod_client():
+    return get_account()[0]
+
+
+def create_account():
+    private_key, address = account.generate_account()
+    return mnemonic.from_private_key(private_key)
 
 
 def get_balance():
     algod_client, passphrase = get_account()
     address = mnemonic.to_public_key(passphrase)
     account_info = algod_client.account_info(address)
-    balance = account_info.get('amount') / MICRO
+    balance = account_info.get('amount') / microalgos_to_algos_ratio
 
     return balance
 
 
-def send_transaction(quantity, receiver, note):
+def get_address():
     algod_client, passphrase = get_account()
+    address = mnemonic.to_public_key(passphrase)
 
-    quantity = quantity * MICRO
-    sender = mnemonic.to_public_key(passphrase)
-    params = algod_client.suggested_params()
+    return address
+
+
+def send_transaction(sender, quantity, receiver, note, sk):
+
+    quantity = int(quantity * microalgos_to_algos_ratio)
+    params = algod_client().suggested_params()
     note = note.encode()
-
     unsigned_txn = PaymentTxn(sender, params, receiver, quantity, None, note)
-    signed_txn = unsigned_txn.sign(mnemonic.to_private_key(passphrase))
-    txid = algod_client.send_transaction(signed_txn)
+    signed_txn = unsigned_txn.sign(sk)
+    txid = algod_client().send_transaction(signed_txn)
 
     # wait for confirmation
     try:
@@ -54,3 +66,8 @@ def wait_for_confirmation(client, transaction_id, timeout):
         current_round += 1
     raise Exception(
         'pending tx not found in timeout rounds, timeout value = : {}'.format(timeout))
+
+
+if __name__ == "__main__":
+    address = mnemonic.to_public_key("alter alter base great hammer alarm gallery reject jeans trial title approve fitness until cigar shine domain burger honey tent clinic crop metal absent reflect")
+    print(address)

@@ -22,5 +22,5 @@ class SendForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    passphrase = StringField('15-word Passphrase', validators=[InputRequired()])
+    passphrase = StringField('25-word Passphrase', validators=[InputRequired()])
     submit = SubmitField('Login')
