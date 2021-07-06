@@ -13,9 +13,8 @@ def get_account():
     }
 
     algod_client = algod.AlgodClient(algod_token, algod_address, headers)
-    passphrase = env["MNEMONIC"]
 
-    return algod_client, passphrase
+    return algod_client
 
 
 def get_indexer():

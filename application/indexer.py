@@ -1,6 +1,5 @@
 from algosdk.constants import microalgos_to_algos_ratio
 
-from .algod import get_address
 from config import get_indexer
 
 

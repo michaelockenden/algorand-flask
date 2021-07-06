@@ -16,6 +16,7 @@ auth_bp = Blueprint(
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    """Default login page"""
     if current_user.is_authenticated:
         return redirect(url_for('main_bp.index'))
 
@@ -33,6 +34,7 @@ def login():
 
 @auth_bp.route('/signup', methods=['GET', 'POST'])
 def signup():
+    """Generates a user account and shows its passphrase"""
     passphrase = create_account()
     user = User(passphrase=passphrase)
     login_user(user)
@@ -41,10 +43,11 @@ def signup():
 
 @login_manager.user_loader
 def load_user(user_id):
+    """User load logic"""
     return User(mnemonic.from_private_key(user_id))
 
 
 @login_manager.unauthorized_handler
 def unauthorized():
-    """Redirect unauthorized users to Login page."""
+    """Redirect unauthorized users to login page"""
     return redirect(url_for('auth_bp.login'))

@@ -4,11 +4,6 @@ body {
     color: black;
 }
 
-h1 {
-    font-size: 48px;
-    padding-top: 20px;
-}
-
 .container {
     display: flex;
     justify-content: center;
@@ -36,7 +31,7 @@ form {
     text-align: left;
 }
 
-input, .select {
+input {
     width: 280px;
     padding: 12px;
     margin-bottom: 12px;
@@ -46,7 +41,7 @@ input, .select {
     text-decoration: none;
 }
 
-input[type=submit], .select {
+input[type=submit] {
     font-size: 16px;
     font-weight: bold;
     border: 3px solid black;
@@ -56,8 +51,8 @@ input[type=submit], .select {
     color: black;
 }
 
-input[type=submit]:hover, .select:hover {
-    background-color: lightcoral;
+input[type=submit]:hover {
+    background-color: darkslategrey;
     color: white;
     cursor: pointer;
 }
