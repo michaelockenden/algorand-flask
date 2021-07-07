@@ -21,7 +21,7 @@ with:
 
 In order to access the algorand network, the easiest way to get started is by creating an account
 at https://developer.purestake.io/login. 
-The API keys referenced in this project (in files `indexer.py` and `algod.py` should be replaced with your own.
+The API keys referenced in this project (found in files `indexer.py` and `algod.py`) should be replaced with your own.
 Do note that the number of requests available with this method is limited and sometimes lead to errors if you make too many requests.
 
 To run the repository, simply run `wsgi.py`.
