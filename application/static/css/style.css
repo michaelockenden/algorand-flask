@@ -51,6 +51,14 @@ input[type=submit] {
     color: black;
 }
 
+input[type=checkbox] {
+    background-color: black;
+    padding: 9px;
+	border-radius: 3px;
+	display: inline-block;
+	position: relative;
+}
+
 input[type=submit]:hover {
     background-color: darkslategrey;
     color: white;

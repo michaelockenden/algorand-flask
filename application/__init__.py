@@ -1,8 +1,8 @@
-from flask import Flask
 from dotenv import dotenv_values
+from flask import Flask
 
-from . import views
 from . import auth
+from . import views
 
 
 def create_app():

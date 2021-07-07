@@ -1,10 +1,10 @@
-from flask_login import UserMixin
-from algosdk import account, mnemonic
+from algosdk import mnemonic
 from algosdk.constants import microalgos_to_algos_ratio
+from flask_login import UserMixin
 
 from config import get_account, get_indexer
-from .algod import send_transaction
-from .indexer import get_transactions
+from .algod import send_transaction, create_asset
+from .indexer import get_transactions, get_assets
 
 
 class User(UserMixin):
@@ -24,7 +24,7 @@ class User(UserMixin):
 
     @property
     def public_key(self):
-        """Returns public key from mnemonic"""
+        """Returns public key from mnemonic. This is the same as the user's address"""
         return mnemonic.to_public_key(self.passphrase)
 
     def get_balance(self):
@@ -38,6 +38,31 @@ class User(UserMixin):
         """Returns True for a succesful transaction. Quantity is given in algos"""
         return send_transaction(self.public_key, quantity, receiver, note, self.id)
 
+    def create(
+            self,
+            asset_name,
+            unit_name,
+            total,
+            decimals,
+            default_frozen,
+            url
+    ):
+        """Creates an asset, with the user as the creator"""
+        return create_asset(
+            self.public_key,
+            asset_name,
+            unit_name,
+            total,
+            decimals,
+            default_frozen,
+            url,
+            self.id
+        )
+
     def get_transactions(self):
         """Returns a list of the user's transactions"""
         return get_transactions(self.public_key)
+
+    def get_assets(self):
+        """Returns a list of the user's assets"""
+        return get_assets(self.public_key)

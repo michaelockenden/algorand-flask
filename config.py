@@ -1,6 +1,6 @@
-from dotenv import dotenv_values
 from algosdk.v2client import algod
 from algosdk.v2client import indexer
+from dotenv import dotenv_values
 
 
 def get_account():

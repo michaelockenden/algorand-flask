@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import login_required, logout_user, current_user
 
-from .forms import SendForm
+from .forms import SendForm, AssetForm
 
 main_bp = Blueprint(
     'main_bp', __name__,
@@ -23,13 +23,35 @@ def index():
 def send():
     """Provides a form to create and send a transaction"""
     form = SendForm()
+    address = current_user.public_key
     if form.validate_on_submit():
         success = current_user.send(form.quantity.data, form.receiver.data, form.note.data)
-        print(success)
         return render_template('success.html', success=success)
 
     # show the form, it wasn't submitted
-    return render_template('send.html', form=form)
+    return render_template('send.html', form=form, address=address)
+
+
+@main_bp.route('/create', methods=['GET', 'POST'])
+@login_required
+def create():
+    """Provides a form to create an asset"""
+    form = AssetForm()
+    if form.validate_on_submit():
+        success = current_user.create(
+            form.asset_name.data,
+            form.unit_name.data,
+            form.total.data,
+            form.decimals.data,
+            form.default_frozen.data,
+            form.url.data
+        )
+
+        print(success)
+        return redirect(url_for('main_bp.assets'))
+
+    # show the form, it wasn't submitted
+    return render_template('create_asset.html', form=form)
 
 
 @main_bp.route('/transactions')
@@ -37,8 +59,15 @@ def send():
 def transactions():
     """Displays all transactions from the user"""
     txns = current_user.get_transactions()
-
     return render_template('transactions.html', txns=txns)
+
+
+@main_bp.route('/assets')
+@login_required
+def assets():
+    """Displays all assets owned by the user"""
+    assets_list = current_user.get_assets()
+    return render_template('assets.html', assets=assets_list)
 
 
 @main_bp.route('/mnemonic')

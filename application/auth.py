@@ -1,9 +1,10 @@
+from algosdk import mnemonic
 from flask import Blueprint, render_template, redirect, url_for, flash
 from flask_login import LoginManager, current_user, login_user
-from algosdk import mnemonic
+
+from .algod import create_account
 from .forms import LoginForm
 from .models import User
-from .algod import create_account
 
 login_manager = LoginManager()
 

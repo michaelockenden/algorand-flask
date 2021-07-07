@@ -1,17 +1,18 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-    <h1>Transactions</h1>
-    <table>
-        <tr>
-            <th>Receiver</th>
-            <th>Quantity</th>
-        </tr>
-        {% for txn in txns %}
-            <tr>
-            <td>{{ txn.receiver }}</td>
-            <td>{{ txn.amount }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+<h1>Transactions</h1>
+<table>
+    <tr>
+        <th>Sender/Receiver</th>
+        <th>Quantity</th>
+    </tr>
+    {% for txn in txns %}
+    <tr>
+        <td>{{ txn.receiver }}</td>
+        <td>{{ txn.amount }}</td>
+        </div>
+    </tr>
+    {% endfor %}
+</table>
 {% endblock %}
