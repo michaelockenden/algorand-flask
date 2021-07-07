@@ -9,7 +9,9 @@ This wallet will feature:
 - Viewing all sent/received transactions
 - Creating and displaying assets
 
-As a warning, this project has been not audited and should not be used in a production environment
+As a warning, this project has been not audited and should not be used in a production environment.
+
+If you would like to see the final project, or if you're unsure about the file structure, you can check out the [GitHub repository](https://github.com/michaelockenden/algorand-flask).
 
 
 # Introduction and Setup
@@ -235,11 +237,12 @@ def get_balance(address):
 This method uses Purestake.io to connect to the algod client. Afer putting in your API key, 
 run `passphrase = create_account()` to generate a TestNet account and save the passphrase. Make sure you store this somewhere because we'll be using it a lot before implementing a login system.
 
-Note that we made a helper function to return the algod client whenever. From now on, we'll be calling this function to use the client, so be sure to `algod_client()` and not `algod_client`.
+Note that we made a helper function to return the algod client whenever. From now on, we'll be calling this function to use the client, so be sure to use `algod_client()` and not `algod_client`.
 
-Now we can get the balance of our new account by running `balance = get_balance(mnemonic.to_public_key(passphrase))`. We need to convert the account passphrase into its public key - the address - in order to check the balance.
+Now we can get the balance of our new account by running `balance = get_balance(mnemonic.to_public_key(passphrase))`. 
+We need to convert the account passphrase into its public key - the address - in order to check the balance.
 
-Note that by default, balance is stored in microAlgos, which is 0.000001 Algos, the unit a wallet would normally display.
+Note that by default, balance is stored in microAlgos, which is equivalent to 0.000001 Algos, the unit a wallet would normally display.
 
 You can add more algorand to your account on the TestNet using the [Algorand Dispenser](https://bank.testnet.algorand.network/). 
 
@@ -419,7 +422,7 @@ Now if you do `flask run` and add `/send` to the address bar, your page should l
 
 You can also add a link from your index with `<h2><a href="{{ url_for('main_bp.send') }}">Send/Receive</a></h2>`
 
-Notice if you try to click submit you will just get an error. We still need to implement actually sending the algorand using the algod client.
+Notice if you try to click submit you would just get an error. We still need to implement actually sending the algorand using the algod client.
 
 We can add to `algod.py`
 
@@ -427,7 +430,6 @@ We can add to `algod.py`
 from algosdk.future.transaction import PaymentTxn
 
 ...
-
 
 def send_transaction(sender, quantity, receiver, note, sk):
     """Create and sign a transaction. Quantity is assumed to be in algorands, not microalgos"""
@@ -536,7 +538,7 @@ class User(UserMixin):
 Normally, when creating a User class, we would also use a database to store account details.
 However, this isn't as important when working with blockchain technology.
 
-From inputting a passphrase, we can find the user's public key (address) and private key. We called the private key the user ID so that it will work with some Flask-Login features. 
+After inputting a passphrase, we can find the user's public key (address) and private key. We called the private key the user ID so that it will work with some Flask-Login features later. 
 
 Notice the functions `get_balance` and `send`, we'll soon be calling these from `views.py` so we no longer need to pass in our address every time.
 
@@ -617,7 +619,7 @@ def login():
     return render_template('login.html', form=form)
 ```
 
-We are now using a new blueprint, `auth_bp`. This will need to be added to `__init__.py`.
+We are now using a new Flask Blueprint, `auth_bp`. This will need to be added to `__init__.py`.
 
 ```python
 from flask import Flask
@@ -640,7 +642,8 @@ def create_app():
 
 The secret key is used to encrpyt browser cookies, making it especially important for storing user information.
 
-Now, we can use Flask-Login to set routes as `login_required`, meaning they can't be accessed without an account. Also, the `current_user` instance is used to retrieve information about the signed in user. Let's now add these into our `views.py`.
+Now, we can use Flask-Login to set routes as `login_required`, meaning they can't be accessed without an account. 
+Also, the `current_user` instance is used to retrieve information about the signed in user. Let's now add these into our `views.py`.
 
 ```python
 from flask_login import login_required, current_user
@@ -796,7 +799,8 @@ However we also need to create `mnemonic.html` this page will display the mnemon
 {% endblock %}
 ```
 
-I also added a route to this mnemonic from `views.py`. This route instead uses the current account.
+I also added a route to this mnemonic in `views.py`. 
+This route uses the current account instead of creating a new one.
 
 ```python
 @main_bp.route('/mnemonic')
@@ -807,7 +811,7 @@ def mnemonic():
     return render_template('mnemonic.html', passphrase=passphrase)
 ```
 
-Put `<h2><a href="{{ url_for('main_bp.mnemonic') }}">View Recovery Passphrase</a></h2>` on `index.html`
+This can be accessed with `<h2><a href="{{ url_for('main_bp.mnemonic') }}">View Recovery Passphrase</a></h2>` on `index.html`
 
 We've now finished our login system for the website. 
 You can login using a passphrase or create an account and you can then logout when finished.
