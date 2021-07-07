@@ -49,7 +49,8 @@ To begin, first create a file structure as shown:
 
 `requirements.txt` should be filled with the requriements mentioned earlier. This can then be installed with `pip install -r requirements.txt`. Make sure your virtual environment is activated.
 
-The remaining files should be filled out as so:
+The remaining files should be filled out as such:
+
 `__init__.py`:
 ```python
 from flask import Flask
@@ -90,6 +91,7 @@ if __name__ == "__main__":
 This can be run with `flask run`. It is important to note that `flask run` will by default look for a file called `wsgi.py` so don't rename it.
 
 If you haven't used Flask before, this may seem initimidating, and if you have used Flask, you probably know that the same outcome can be acheived with a single `app.py`, written as:
+
 ```python
 from flask import Flask
 
@@ -177,6 +179,7 @@ How this works is that by extending from `layout.html`, the blocks in `index.htm
 
 Now in order to display the new index page, we need to render it with Flask.
 Replace `views.py` with:
+
 ```python
 from flask import Blueprint, render_template
 
