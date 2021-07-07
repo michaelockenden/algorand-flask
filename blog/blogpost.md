@@ -9,11 +9,13 @@ This wallet will feature:
 - Viewing all sent/received transactions
 - Creating and displaying assets
 
+As a warning, this project has been not audited and should not be used in a production environment
+
 
 # Introduction and Setup
 
-Flask is most well known for being able to quickly put together websites, however it is capable of more robust features.
-We'll take acheive this by also using Flask-WTF and Flask-Login.
+Flask is most well known for being able to quickly put together websites, however it is capable of more sturdy features.
+We'll acheive this by also using Flask-WTF and Flask-Login.
 
 Along with the Python Algorand SDK, our requirements file should look like this:
 
@@ -1270,3 +1272,16 @@ def assets():
 Now we can finally view our created assets.
 
 ![assets](assets.png)
+
+As I mentioned before, there is a lot to do with assets.
+You could also add options to distribute or revoke assets, as well as view asset holdings.
+
+# Conclusion
+
+Now we finally have our working demo wallet. Thanks for reading this far, I hope this project walkthrough has been useful!
+
+From here there are a lot more possiblities. Another feature could be to store multiple accounts on one wallet, for example.
+
+There is also a public [GitHub repository](https://github.com/michaelockenden/algorand-flask), if you want to see the final product.
+
+Finally, remember to never use the MainNet, unless you have robust security features, and never commit files with sensitive information.
