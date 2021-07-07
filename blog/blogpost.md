@@ -3,9 +3,9 @@
 In this project we'll go through the steps of putting together a basic Algorand wallet website using Flask.
 
 This wallet will feature:
+- Sending transactions
 - Logging in with a 25-word mnemonic
 - Creating an account
-- Sending transactions
 - Viewing all sent/received transactions
 - Creating and displaying assets
 
@@ -807,9 +807,466 @@ def mnemonic():
 
 Put `<h2><a href="{{ url_for('main_bp.mnemonic') }}">View Recovery Passphrase</a></h2>` on `index.html`
 
-Now, we finished our login system for the website. 
-You can now login using a passphrase or create an account and you can then logout when finished.
+We've now finished our login system for the website. 
+You can login using a passphrase or create an account and you can then logout when finished.
 
 
 # Displaying Transactions using the Indexer
 
+The indexer is used to retrieve all transactions on the blockchain.
+We can then filter this to all transactions related to the current account.
+
+Let's start by creating a new file `indexer.py`, here we will put all indexer processes.
+
+`indexer.py`
+```python
+from algosdk.constants import microalgos_to_algos_ratio
+from algosdk.v2client import indexer
+
+def myindexer():
+    algod_address = "https://testnet-algorand.api.purestake.io/idx2"
+    algod_token = "YOUR API KEY GOES HERE"
+    headers = {
+        "X-API-Key": algod_token,
+    }
+    return indexer.IndexerClient("", algod_address, headers)
+
+def get_transactions(address):
+    """Returns a list of transactions related to the given address"""
+
+    response = myindexer().search_transactions_by_address(address)
+    txns = []
+    for txn in response["transactions"]:
+        try:
+            sender = txn["sender"]
+            fee = txn["fee"]
+            txn = txn["payment-transaction"]
+            if sender == address:
+                txn["amount"] += fee
+                txn["amount"] *= -1
+            else:
+                txn["receiver"] = sender
+            txn["amount"] /= microalgos_to_algos_ratio
+            txns.append(txn)
+        except KeyError:
+            continue
+    return txns
+```
+
+`myindexer()` is a helper function just like `algod_client()`. 
+
+`get_transactions` works by looping through each transaction related to the address.
+It works to create a new list we want display on our website.
+If the given address is also the sender, we want to also add the fee the sender paid
+and display the total cost as negative. 
+
+We return a list of dictionaries that each includes an `"amount"` and a `"receiver"` alongside other information. 
+`"amount"` will show the money entering/leaving the user's account and `"receiver"`
+will show the other address the transaction was completed with.
+
+Now, as usual, we can add a route in `views.py` to call this function.
+
+```python
+@main_bp.route('/transactions')
+@login_required
+def transactions():
+    """Displays all transactions from the user"""
+    txns = current_user.get_transactions()
+    return render_template('transactions.html', txns=txns)
+```
+
+`transactions.html` should look like this:
+
+```html
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>Transactions</h1>
+<table>
+    <tr>
+        <th>Sender/Receiver</th>
+        <th>Quantity</th>
+    </tr>
+    {% for txn in txns %}
+    <tr>
+        <td>{{ txn.receiver }}</td>
+        <td>{{ txn.amount }}</td>
+        </div>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+```
+
+With the following CSS:
+```css
+table {
+    text-align: left;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+th, td {
+    border-bottom: 1px solid lightgrey;
+    padding: 4px;
+    padding-right: 16px;
+}
+```
+
+Don't forget to add `transaction.html` to the navbar!
+
+If you tried running now you would still get error - we need to add `get_transactions` to the user model
+so that we can add the user's address.
+
+`models.py`
+
+```python
+from .indexer import get_transactions
+
+class User(UserMixin):
+    
+    ...
+    
+    def get_transactions(self):
+        """Returns a list of the user's transactions"""
+        return get_transactions(self.public_key)
+```
+
+Now we can run, and view all transactions.
+
+![transactions](transactions.png)
+
+If you want to, you could also try displaying negative transactions as red, and positive transactions as green.
+
+
+# Working with Assets
+
+Assets can be used for a variety of purposes within the Algorand network.
+We're only going to look at creating assets and displaying the created assets.
+
+For more information on assets and what you can do with them, I recommend
+reading about them on the [Developer Portal](https://developer.algorand.org/docs/features/asa/).
+
+## Asset Creation Form
+
+In order to create assets, we'll first need a new form class.
+
+`forms.py`
+
+```python
+from algosdk.constants import max_asset_decimals
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField, IntegerField, BooleanField
+from wtforms.validators import InputRequired, Optional, NumberRange
+
+class AssetForm(FlaskForm):
+    """Form for creating an asset"""
+    asset_name = StringField(
+        'Asset name',
+        validators=[InputRequired()]
+    )
+    unit_name = StringField(
+        'Unit name',
+        validators=[InputRequired()]
+    )
+    total = IntegerField(
+        'Total number',
+        validators=[InputRequired(), NumberRange(min=1)]
+    )
+    decimals = IntegerField(
+        'Number of decimals',
+        validators=[InputRequired(), NumberRange(min=0, max=max_asset_decimals)]
+    )
+    default_frozen = BooleanField(
+        'Frozen',
+        validators=[Optional()]
+    )
+    url = StringField(
+        'URL',
+        validators=[Optional()]
+    )
+    submit = SubmitField('Create')
+```
+
+The is one more neccesary parameter for creating an asset - the creator address.
+We will automatically put the current user's address as the creator.
+
+There are also four other addresses an asset can use:
+- Manager address
+- Freeze address
+- Reserve address
+- Clawback address
+
+These addresses are granted special permissions related to the asset. 
+For simplicity's sake, we'll set also set these addresses to the current user's address.
+
+Now create an `assets.html` pages in `templates`
+
+```html
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>Assets</h1>
+<a href="{{ url_for('main_bp.create') }}"><h2>Create an Asset</h2></a>
+{% endblock %}
+```
+
+We'll later display our created assets here. 
+
+Now let's add the some routes into `views.py`.
+
+```python
+from .forms import AssetForm
+
+@main_bp.route('/assets')
+@login_required
+def assets():
+    return render_template('assets.html')
+
+@main_bp.route('/create', methods=['GET', 'POST'])
+@login_required
+def create():
+    """Provides a form to create an asset"""
+    form = AssetForm()
+    if form.validate_on_submit():
+        asset_id = current_user.create(
+            form.asset_name.data,
+            form.unit_name.data,
+            form.total.data,
+            form.decimals.data,
+            form.default_frozen.data,
+            form.url.data
+        )
+
+        return redirect(url_for('main_bp.assets'))
+
+    # show the form, it wasn't submitted
+    return render_template('create_asset.html', form=form)
+```
+
+We'll need to create the HTML page for the form now.
+
+```html
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>Create an Asset</h1>
+<form action="{{ url_for('main_bp.create') }}" method="post">
+    {{ form.csrf_token }}
+
+    {{ form.asset_name.label }}
+    <br>
+    {{ form.asset_name }}
+    <br><br>
+    {{ form.unit_name.label }}
+    <br>
+    {{ form.unit_name }}
+    <br><br>
+    {{ form.total.label }}
+    <br>
+    {{ form.total }}
+    <br><br>
+    {{ form.decimals.label }}
+    <br>
+    {{ form.decimals }}
+    <br><br>
+    {{ form.default_frozen.label }}
+    <br>
+    {{ form.default_frozen }}
+    <br><br>
+    {{ form.url.label }}
+    <br>
+    {{ form.url }}
+    <br><br>
+    {{ form.submit }}
+    <br>
+    {% if form.errors %}
+        <h2>Invalid submission</h2>
+    {% endif %}
+</form>
+{% endblock %}
+```
+
+After adding Assets to the navbar, we should be able to get a to form looking like this:
+
+![create](create.png)
+
+Of course, this won't work until we implement the backend of creating an asset.
+
+## Creating Assets with the Algod Client
+
+Under `models.py`, we can create a new method. 
+This method will add the current user's public and private keys to the parameters needed to create an asset.
+
+```python
+from .algod import create_asset
+
+class User(UserMixin):
+    
+    ...
+
+    def create(
+            self,
+            asset_name,
+            unit_name,
+            total,
+            decimals,
+            default_frozen,
+            url
+    ):
+        """Creates an asset, with the user as the creator"""
+        return create_asset(
+            self.public_key,
+            asset_name,
+            unit_name,
+            total,
+            decimals,
+            default_frozen,
+            url,
+            self.id
+        )    
+```
+
+Now we can implement the `create_asset` function in `algod.py`.
+
+```python
+from algosdk.future.transaction import AssetConfigTxn
+
+def create_asset(
+        creator,
+        asset_name,
+        unit_name,
+        total,
+        decimals,
+        default_frozen,
+        url,
+        sk
+):
+    """Creates an asset, returns the newly created asset ID"""
+    params = algod_client().suggested_params()
+
+    txn = AssetConfigTxn(
+        sender=creator,
+        sp=params,
+        total=total,
+        default_frozen=default_frozen,
+        unit_name=unit_name,
+        asset_name=asset_name,
+        manager=creator,
+        reserve=creator,
+        freeze=creator,
+        clawback=creator,
+        url=url,
+        decimals=decimals)
+
+    # Sign with secret key of creator
+    stxn = txn.sign(sk)
+
+    # Send the transaction to the network and retrieve the txid.
+    txid = algod_client().send_transaction(stxn)
+
+    try:
+        wait_for_confirmation(txid, 4)
+    except Exception as err:
+        print(err)
+        return None
+
+    try:
+        ptx = algod_client().pending_transaction_info(txid)
+        asset_id = ptx["asset-index"]
+        return asset_id
+    except Exception as err:
+        print(err)
+        return None    
+```
+
+You can now test out creating an asset, but you won't see any feedback.
+Next we will display all the created assets under the Asset page.
+
+## Displaying Created Assets
+
+Creating an assets creates a special transaction for the user,
+and so just like before, we will use the indexer to find and display these transactions.
+
+As always, we use our User model to input the current user address.
+
+`models.py`
+
+```python
+from .indexer import get_assets
+
+class User(UserMixin):
+    
+    ...
+    
+    def get_assets(self):
+        """Returns a list of the user's assets"""
+        return get_assets(self.public_key)
+```
+
+Now we can use the indexer to find all created assets from the given address
+
+`indexer.py`
+
+```python
+def get_assets(address):
+    """Returns a list of assets that have been created by the given address"""
+
+    response = myindexer().search_transactions_by_address(address)
+    assets = []
+    for asset in response["transactions"]:
+        try:
+            asset = asset["asset-config-transaction"]
+            assets.append(asset)
+        except KeyError:
+            continue
+    return assets
+```
+
+Now lets update `views.py` and `assets.html` to display the given list.
+
+`views.py`
+
+```python
+@main_bp.route('/assets')
+@login_required
+def assets():
+    """Displays all assets owned by the user"""
+    assets_list = current_user.get_assets()
+    return render_template('assets.html', assets=assets_list)
+```
+
+`assets.html`
+
+```html
+{% extends 'layout.html' %}
+
+{% block content %}
+<h1>Assets</h1>
+<a href="{{ url_for('main_bp.create') }}"><h2>Create an Asset</h2></a>
+<table>
+    <tr>
+        <th>Asset Name</th>
+        <th>Unit Name</th>
+        <th>Total</th>
+        <th>Decimals</th>
+        <th>Frozen</th>
+        <th>URL</th>
+    </tr>
+    {% for asset in assets %}
+    <tr>
+        <td>{{ asset.params.name }}</td>
+        <td>{{ asset.params.get('unit-name') }}</td>
+        <td>{{ asset.params.total }}</td>
+        <td>{{ asset.params.decimals }}</td>
+        <td>{{ asset.params.get('default-frozen') }}</td>
+        <td>{{ asset.params.url }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}
+```
+
+Now we can finally view our created assets.
+
+![assets](assets.png)
