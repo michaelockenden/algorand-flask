@@ -1,7 +1,7 @@
 from algosdk import mnemonic
 from flask_login import UserMixin
 
-from .algod import get_balance, send_transaction, create_asset
+from .algod import get_balance, send_txn, create_asset
 from .indexer import get_transactions, get_assets
 
 
@@ -28,7 +28,7 @@ class User(UserMixin):
 
     def send(self, quantity, receiver, note):
         """Returns True for a succesful transaction. Quantity is given in algos"""
-        return send_transaction(self.public_key, quantity, receiver, note, self.id)
+        return send_txn(self.public_key, quantity, receiver, note, self.id)
 
     def create(
             self,

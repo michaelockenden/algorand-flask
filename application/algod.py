@@ -32,7 +32,7 @@ def get_balance(address):
     return balance
 
 
-def send_transaction(sender, quantity, receiver, note, sk):
+def send_txn(sender, quantity, receiver, note, sk):
     """Create and sign a transaction. Quantity is assumed to be in algorands, not microalgos"""
 
     quantity = int(quantity * microalgos_to_algos_ratio)
@@ -44,7 +44,11 @@ def send_transaction(sender, quantity, receiver, note, sk):
         print(err)
         return False
     signed_txn = unsigned_txn.sign(sk)
-    txid = algod_client().send_transaction(signed_txn)
+    try:
+        txid = algod_client().send_transaction(signed_txn)
+    except Exception as err:
+        print(err)
+        return False
 
     # wait for confirmation
     try:
