@@ -1,17 +1,12 @@
 from algosdk import mnemonic
-from algosdk.constants import microalgos_to_algos_ratio
 from flask_login import UserMixin
 
-from config import get_account, get_indexer
-from .algod import send_transaction, create_asset
+from .algod import get_balance, send_transaction, create_asset
 from .indexer import get_transactions, get_assets
 
 
 class User(UserMixin):
     """User account model"""
-
-    algod_client = get_account()
-    indexer = get_indexer()
 
     def __init__(self, passphrase):
         """Creates a user using the 25-word mnemonic"""
@@ -28,11 +23,8 @@ class User(UserMixin):
         return mnemonic.to_public_key(self.passphrase)
 
     def get_balance(self):
-        """Returns user balance, in algos converted from microalgos"""
-        account_info = self.algod_client.account_info(self.public_key)
-        balance = account_info.get('amount') / microalgos_to_algos_ratio
-
-        return balance
+        """Returns user balance, in algos"""
+        return get_balance(self.public_key)
 
     def send(self, quantity, receiver, note):
         """Returns True for a succesful transaction. Quantity is given in algos"""

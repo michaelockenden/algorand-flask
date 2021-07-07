@@ -24,6 +24,14 @@ def create_account():
     return mnemonic.from_private_key(private_key)
 
 
+def get_balance(address):
+    """Returns the given address balance in algos converted from microalgos"""
+    account_info = algod_client().account_info(address)
+    balance = account_info.get('amount') / microalgos_to_algos_ratio
+
+    return balance
+
+
 def send_transaction(sender, quantity, receiver, note, sk):
     """Create and sign a transaction. Quantity is assumed to be in algorands, not microalgos"""
 
