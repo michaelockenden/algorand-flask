@@ -1,6 +1,6 @@
 from algosdk.constants import address_len, note_max_length, max_asset_decimals
 from flask_wtf import FlaskForm
-from wtforms import DecimalField, StringField, SubmitField, IntegerField, BooleanField, DateField
+from wtforms import DecimalField, StringField, SubmitField, IntegerField, BooleanField
 from wtforms.validators import InputRequired, Optional, Length, NumberRange
 
 
