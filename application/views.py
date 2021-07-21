@@ -65,19 +65,29 @@ def transactions():
     if form.validate_on_submit():
         filtered = []
         for txn in txns:
-            if form.substring.data in txn["receiver"]:
+            if form.substring.lower() in txn['address'].lower():
                 filtered.append(txn)
         txns = filtered
 
     return render_template('transactions.html', txns=txns, form=form)
 
 
-@main_bp.route('/assets')
+@main_bp.route('/assets', methods=['GET', 'POST'])
 @login_required
 def assets():
     """Displays all assets owned by the user"""
+    form = FilterForm()
     assets_list = current_user.get_assets()
-    return render_template('assets.html', assets=assets_list)
+
+    # filter list of assets where the name contains the form data
+    if form.validate_on_submit():
+        filtered = []
+        for asset in assets_list:
+            if form.substring.data.lower() in asset['params']['name'].lower():
+                filtered.append(asset)
+        assets_list = filtered
+
+    return render_template('assets.html', assets=assets_list, form=form)
 
 
 @main_bp.route('/mnemonic')

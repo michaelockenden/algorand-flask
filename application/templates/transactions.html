@@ -6,6 +6,8 @@
     {{ form.csrf_token }}
 
     {{ form.substring }}
+    <br>
+    {{ form.date }}
     {{ form.submit }}
 </form>
 <table>
@@ -15,7 +17,7 @@
     </tr>
     {% for txn in txns %}
     <tr>
-        <td>{{ txn.receiver }}</td>
+        <td>{{ txn.address }}</td>
         <td>{{ txn.amount }}</td>
         </div>
     </tr>

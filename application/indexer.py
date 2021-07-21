@@ -26,13 +26,16 @@ def get_transactions(address):
             sender = txn["sender"]
             fee = txn["fee"]
             txn = txn["payment-transaction"]
+            amount = txn["amount"]
             if sender == address:
-                txn["amount"] += fee
-                txn["amount"] *= -1
+                # if the current account is the sender, add fee and display transaction as negative
+                amount += fee
+                amount *= -1
+                other_address = txn["receiver"]
             else:
-                txn["receiver"] = sender
-            txn["amount"] /= microalgos_to_algos_ratio
-            txns.append(txn)
+                other_address = sender
+            amount /= microalgos_to_algos_ratio
+            txns.append({"amount": amount, "address": other_address})
         except KeyError:
             continue
     return txns
