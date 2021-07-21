@@ -65,7 +65,7 @@ def transactions():
     if form.validate_on_submit():
         filtered = []
         for txn in txns:
-            if form.substring.lower() in txn['address'].lower():
+            if form.substring.data.lower() in txn['address'].lower():
                 filtered.append(txn)
         txns = filtered
 
