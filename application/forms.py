@@ -65,8 +65,4 @@ class FilterForm(FlaskForm):
         validators=[Optional()],
         render_kw={"placeholder": "Filter list"}
     )
-    start_date = DateField(
-        'Date',
-        validators=[Optional()]
-    )
     submit = SubmitField('Search')

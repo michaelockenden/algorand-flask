@@ -61,13 +61,11 @@ def transactions():
     form = FilterForm()
     txns = current_user.get_transactions()
 
-    # filter list of transactions where the address contains the form data
+    # filter list of transactions based on address
     if form.validate_on_submit():
-        filtered = []
-        for txn in txns:
-            if form.substring.data.lower() in txn['address'].lower():
-                filtered.append(txn)
-        txns = filtered
+        txns = filter(lambda x:
+                      form.substring.data.lower() in x['address'].lower(),
+                      txns)
 
     return render_template('transactions.html', txns=txns, form=form)
 
@@ -79,13 +77,11 @@ def assets():
     form = FilterForm()
     assets_list = current_user.get_assets()
 
-    # filter list of assets where the name contains the form data
+    # filter list of assets based on asset name
     if form.validate_on_submit():
-        filtered = []
-        for asset in assets_list:
-            if form.substring.data.lower() in asset['params']['name'].lower():
-                filtered.append(asset)
-        assets_list = filtered
+        assets_list = filter(lambda x:
+                             form.substring.data.lower() in x['params']['name'].lower(),
+                             assets_list)
 
     return render_template('assets.html', assets=assets_list, form=form)
 

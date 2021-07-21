@@ -19,7 +19,7 @@ def myindexer():
 def get_transactions(address):
     """Returns a list of transactions related to the given address"""
 
-    response = myindexer().search_transactions_by_address(address)
+    response = myindexer().search_transactions(address=address)
     txns = []
     for txn in response["transactions"]:
         try:
@@ -44,12 +44,6 @@ def get_transactions(address):
 def get_assets(address):
     """Returns a list of assets that have been created by the given address"""
 
-    response = myindexer().search_transactions_by_address(address)
-    assets = []
-    for asset in response["transactions"]:
-        try:
-            asset = asset["asset-config-transaction"]
-            assets.append(asset)
-        except KeyError:
-            continue
+    response = myindexer().search_assets(creator=address)
+    assets = response["assets"]
     return assets
