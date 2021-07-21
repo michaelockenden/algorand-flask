@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for
 from flask_login import login_required, logout_user, current_user
 
-from .forms import SendForm, AssetForm
+from .forms import SendForm, AssetForm, FilterForm
 
 main_bp = Blueprint(
     'main_bp', __name__,
@@ -54,12 +54,22 @@ def create():
     return render_template('create_asset.html', form=form)
 
 
-@main_bp.route('/transactions')
+@main_bp.route('/transactions', methods=['GET', 'POST'])
 @login_required
 def transactions():
     """Displays all transactions from the user"""
+    form = FilterForm()
     txns = current_user.get_transactions()
-    return render_template('transactions.html', txns=txns)
+
+    # filter list of transactions where the address contains the form data
+    if form.validate_on_submit():
+        filtered = []
+        for txn in txns:
+            if form.substring.data in txn["receiver"]:
+                filtered.append(txn)
+        txns = filtered
+
+    return render_template('transactions.html', txns=txns, form=form)
 
 
 @main_bp.route('/assets')

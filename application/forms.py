@@ -56,3 +56,13 @@ class AssetForm(FlaskForm):
         validators=[Optional()]
     )
     submit = SubmitField('Create')
+
+
+class FilterForm(FlaskForm):
+    """Form for filtering transactions and assets"""
+    substring = StringField(
+        'Filter',
+        validators=[Optional()],
+        render_kw={"placeholder": "Filter list"}
+    )
+    submit = SubmitField('Search')
