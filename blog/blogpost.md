@@ -840,20 +840,23 @@ def myindexer():
 def get_transactions(address):
     """Returns a list of transactions related to the given address"""
 
-    response = myindexer().search_transactions_by_address(address)
+    response = myindexer().search_transactions(address=address)
     txns = []
     for txn in response["transactions"]:
         try:
             sender = txn["sender"]
             fee = txn["fee"]
             txn = txn["payment-transaction"]
+            amount = txn["amount"]
             if sender == address:
-                txn["amount"] += fee
-                txn["amount"] *= -1
+                # if the current account is the sender, add fee and display transaction as negative
+                amount += fee
+                amount *= -1
+                other_address = txn["receiver"]
             else:
-                txn["receiver"] = sender
-            txn["amount"] /= microalgos_to_algos_ratio
-            txns.append(txn)
+                other_address = sender
+            amount /= microalgos_to_algos_ratio
+            txns.append({"amount": amount, "address": other_address})
         except KeyError:
             continue
     return txns
@@ -866,8 +869,8 @@ It works to create a new list we want display on our website.
 If the given address is also the sender, we want to also add the fee the sender paid
 and display the total cost as negative. 
 
-We return a list of dictionaries that each includes an `"amount"` and a `"receiver"` alongside other information. 
-`"amount"` will show the money entering/leaving the user's account and `"receiver"`
+We return a list of dictionaries that each includes an `"amount"` and an `"address"`. 
+`"amount"` will show the money entering/leaving the user's account and `"address"`
 will show the other address the transaction was completed with.
 
 Now, as usual, we can add a route in `views.py` to call this function.
@@ -895,7 +898,7 @@ def transactions():
     </tr>
     {% for txn in txns %}
     <tr>
-        <td>{{ txn.receiver }}</td>
+        <td>{{ txn.address }}</td>
         <td>{{ txn.amount }}</td>
         </div>
     </tr>
@@ -1218,14 +1221,8 @@ Now we can use the indexer to find all created assets from the given address
 def get_assets(address):
     """Returns a list of assets that have been created by the given address"""
 
-    response = myindexer().search_transactions_by_address(address)
-    assets = []
-    for asset in response["transactions"]:
-        try:
-            asset = asset["asset-config-transaction"]
-            assets.append(asset)
-        except KeyError:
-            continue
+    response = myindexer().search_assets(creator=address)
+    assets = response["assets"]
     return assets
 ```
 
@@ -1279,6 +1276,85 @@ Now we can finally view our created assets.
 
 As I mentioned before, there is a lot to do with assets.
 You could also add options to distribute or revoke assets, as well as view asset holdings.
+
+# Filtering Transactions and Assets
+
+The final feature we will add is the ability to filter a given list of transactions or assets.
+This can be easily achieved using Python's `filter` function.
+
+To get started we first need a new form class which we will add to `forms.py`.
+
+```python
+class FilterForm(FlaskForm):
+    """Form for filtering transactions and assets"""
+    substring = StringField(
+        'Filter',
+        validators=[Optional()],
+        render_kw={"placeholder": "Filter list"}
+    )
+    submit = SubmitField('Search')
+```
+
+Now we should add the required HTML to `transactions.html` and `assets.html`.
+
+```html
+<form action="{{ url_for('main_bp.transactions') }}" method="post">
+    {{ form.csrf_token }}
+
+    {{ form.substring }}
+    {{ form.submit }}
+</form>
+```
+
+This can be reused in `assets.html` by replacing `url_for('main_bp.transactions')` with `url_for('main_bp.assets')`
+
+Now we just need to update `views.py` to use the filter form.
+
+```python
+from .forms import FilterForm
+
+...
+
+@main_bp.route('/transactions', methods=['GET', 'POST'])
+@login_required
+def transactions():
+    """Displays all transactions from the user"""
+    form = FilterForm()
+    txns = current_user.get_transactions()
+
+    # filter list of transactions based on address
+    if form.validate_on_submit():
+        txns = filter(lambda x:
+                      form.substring.data.lower() in x['address'].lower(),
+                      txns)
+
+    return render_template('transactions.html', txns=txns, form=form)
+
+
+@main_bp.route('/assets', methods=['GET', 'POST'])
+@login_required
+def assets():
+    """Displays all assets owned by the user"""
+    form = FilterForm()
+    assets_list = current_user.get_assets()
+
+    # filter list of assets based on asset name
+    if form.validate_on_submit():
+        assets_list = filter(lambda x:
+                             form.substring.data.lower() in x['params']['name'].lower(),
+                             assets_list)
+
+    return render_template('assets.html', assets=assets_list, form=form)
+```
+
+It is important to add the `POST` method to these functions for the form to work.
+Now we have a working transaction filter -
+
+![t_filter](transaction_filter.png)
+
+And an asset filter -
+
+![a_filter](asset_filter.png)
 
 # Conclusion
 
