@@ -693,6 +693,7 @@ def unauthorized():
 `unauthorized` redirects you to the login page if you haven't signed in.
 
 Now finally, try running the code. You should see a login page - put in your passphrase to sign in.
+
 ![login](login.png)
 
 ## Navigation Bar
