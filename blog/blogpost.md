@@ -28,9 +28,9 @@ flask-wtf
 py-algorand-sdk
 ```
 
-I also highly recommend using `python-dotenv` to store sensitive information and avoid commiting them to a public repository. Flask also has inbuilt functionality with `python-dotenv`, allowing Flask environment variables to be automatically stored in any `.env` file. However, in this solution I'll put the values in the code, which you can replace.
+I also highly recommend using `python-dotenv` to store sensitive information and avoid committing them to a public repository. Flask also has inbuilt functionality with `python-dotenv`, allowing Flask environment variables to be automatically stored in any `.env` file. However, in this solution I'll put the values in the code, which you can replace.
 
-In order to access the algorand nextwork, you need to be running a node. You can do this yourself but it might be easier to grab an API key from a third party, such as at https://developer.purestake.io/login.
+In order to access the algorand nextwork, you need to be running a node. You can do this yourself, but it might be easier to grab an API key from a third party, such as at https://developer.purestake.io/login.
 
 You will need to use a virtual environment to correctly use Flask. This can be done as follows (these commands use Windows):
 
@@ -51,7 +51,7 @@ To begin, first create a file structure as shown:
     └── wsgi.py
 ```
 
-`requirements.txt` should be filled with the requriements mentioned earlier. This can then be installed with `pip install -r requirements.txt`. Make sure your virtual environment is activated.
+`requirements.txt` should be filled with the requirements mentioned earlier. We can install this with `pip install -r requirements.txt`. Make sure your virtual environment is activated.
 
 The remaining files should be filled out as such:
 
@@ -107,9 +107,9 @@ def index():
     return "Algorand Balance"
 ```
 
-The reason we've structured it like this is for a lot more flexiblity. As we start adding more features, a single `app.py` will quickly become overcrowded and hard to use. What we've done is used a Flask Blueprint to seperate components.
+The reason we've structured it like this is for a lot more flexibility. As we start adding more features, a single `app.py` will quickly become overcrowded and hard to use. What we've done is used a Flask Blueprint to separate components.
 
-Now you might be wondering about the static and template folders mentioned in `views.py`. These are to store the project's CSS and HTML, respectively. We can add these folder as so:
+Now you might be wondering about the static and template folders mentioned in `views.py`. These are to store the project's CSS and HTML, respectively. We can add these folders as so:
 
 ```bash
 └── your_project_name/
@@ -234,7 +234,7 @@ def get_balance(address):
     return balance
 ```
 
-This method uses Purestake.io to connect to the algod client. Afer putting in your API key, 
+This method uses Purestake.io to connect to the algod client. After putting in your API key, 
 run `passphrase = create_account()` to generate a TestNet account and save the passphrase. Make sure you store this somewhere because we'll be using it a lot before implementing a login system.
 
 Note that we made a helper function to return the algod client whenever. From now on, we'll be calling this function to use the client, so be sure to use `algod_client()` and not `algod_client`.
@@ -306,7 +306,7 @@ class SendForm(FlaskForm):
     submit = SubmitField('Send')
 ```
 
-This provides the some of the parameters neccesary for sending a transaction. WTForms, which is included with Flask-WTF, provides several validators to make our lives easier.
+This provides some of the parameters necessary for sending a transaction. WTForms, which is included with Flask-WTF, provides several validators to make our lives easier.
 This means we can prevent errors when know will fail before calling the algod client.
 `algosdk.constants` gives us the values we need to validate our form.
 
@@ -494,7 +494,7 @@ def wait_for_confirmation(transaction_id, timeout):
 Now add `from .algod import send_txn` to `views.py`.
 
 You can now test out sending algorand back to the dispenser with the address GD64YIY3TWGDMCNPP553DZPPR6LDUSFQOIJVFDPPXWEG3FVOJCCDBBHU5A.
-Make sure you have enough funds or the transaction will fail.
+Make sure you have enough funds, or the transaction will fail.
 
 # Implementing a Login System with Flask-Login
 
@@ -640,10 +640,10 @@ def create_app():
     return app
 ```
 
-The secret key is used to encrpyt browser cookies, making it especially important for storing user information.
+The secret key is used to encrypt browser cookies, making it especially important for storing user information.
 
 Now, we can use Flask-Login to set routes as `login_required`, meaning they can't be accessed without an account. 
-Also, the `current_user` instance is used to retrieve information about the signed in user. Let's now add these into our `views.py`.
+Also, the `current_user` instance is used to retrieve information about the signed-in user. Let's now add these into our `views.py`.
 
 ```python
 from flask_login import login_required, current_user
@@ -771,7 +771,7 @@ We can now remove our send/receive link from the index.
 
 ## Account Creation
 
-We can also add a sign up button, and generate an account in the website. In `auth.py`, add the following:
+We can also add a sign-up button, and generate an account in the website. In `auth.py`, add the following:
 
 ```python
 @auth_bp.route('/signup', methods=['GET', 'POST'])
@@ -786,7 +786,7 @@ def signup():
 Here we use our earlier function from `algod.py` to generate an account and its passphrase.
 Add this link `<h2><a href="{{ url_for('auth_bp.signup') }}">Create a Wallet</a></h2>` to `login.html` to access this route.
 
-However we also need to create `mnemonic.html` this page will display the mnemonic of the created account.
+However, we also need to create `mnemonic.html` this page will display the mnemonic of the created account.
 
 ```html
 {% extends 'layout.html' %}
@@ -814,7 +814,7 @@ def mnemonic():
 This can be accessed with `<h2><a href="{{ url_for('main_bp.mnemonic') }}">View Recovery Passphrase</a></h2>` on `index.html`
 
 We've now finished our login system for the website. 
-You can login using a passphrase or create an account and you can then logout when finished.
+You can log in using a passphrase or create an account, and then you can then log out when finished.
 
 
 # Displaying Transactions using the Indexer
@@ -869,7 +869,7 @@ It works to create a new list we want display on our website.
 If the given address is also the sender, we want to also add the fee the sender paid
 and display the total cost as negative. 
 
-We return a list of dictionaries that each includes an `"amount"` and an `"address"`. 
+We return a list of dictionaries that includes an `"amount"` and an `"address"`. 
 `"amount"` will show the money entering/leaving the user's account and `"address"`
 will show the other address the transaction was completed with.
 
@@ -997,7 +997,7 @@ class AssetForm(FlaskForm):
     submit = SubmitField('Create')
 ```
 
-The is one more neccesary parameter for creating an asset - the creator address.
+The is one more necessary parameter for creating an asset - the creator address.
 We will automatically put the current user's address as the creator.
 
 There are also four other addresses an asset can use:
@@ -1022,7 +1022,7 @@ Now create an `assets.html` pages in `templates`
 
 We'll later display our created assets here. 
 
-Now let's add the some routes into `views.py`.
+Now let's add the same routes into `views.py`.
 
 ```python
 from .forms import AssetForm
@@ -1096,7 +1096,7 @@ We'll need to create the HTML page for the form now.
 {% endblock %}
 ```
 
-After adding Assets to the navbar, we should be able to get a to form looking like this:
+After adding Assets to the navbar, we should be able to get a form looking like this:
 
 ![create](create.png)
 
@@ -1297,6 +1297,8 @@ class FilterForm(FlaskForm):
 
 Now we should add the required HTML to `transactions.html` and `assets.html`.
 
+`transactions.html`
+
 ```html
 <form action="{{ url_for('main_bp.transactions') }}" method="post">
     {{ form.csrf_token }}
@@ -1306,7 +1308,7 @@ Now we should add the required HTML to `transactions.html` and `assets.html`.
 </form>
 ```
 
-This can be reused in `assets.html` by replacing `url_for('main_bp.transactions')` with `url_for('main_bp.assets')`
+This can be reused in `assets.html` by replacing `url_for('main_bp.transactions')` with `url_for('main_bp.assets')`.
 
 Now we just need to update `views.py` to use the filter form.
 
@@ -1360,7 +1362,7 @@ And an asset filter -
 
 Now we finally have our working demo wallet. Thanks for reading this far, I hope this project walkthrough has been useful!
 
-From here there are a lot more possiblities. Another feature could be to store multiple accounts on one wallet, for example.
+From here there are a lot more possibilities. Another feature could be to store multiple accounts on one wallet, for example.
 
 There is also a public [GitHub repository](https://github.com/michaelockenden/algorand-flask), if you want to see the final product.
 
