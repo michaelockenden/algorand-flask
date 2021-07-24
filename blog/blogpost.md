@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
 This can be run with `flask run`. It is important to note that `flask run` will by default look for a file called `wsgi.py` so don't rename it.
 
-If you haven't used Flask before, this may seem initimidating, and if you have used Flask, you probably know that the same outcome can be acheived with a single `app.py`, written as:
+If you haven't used Flask before, this may seem intimidating, and if you have used Flask, you probably know that the same outcome can be achieved with a single `app.py`, written as:
 
 ```python
 from flask import Flask
