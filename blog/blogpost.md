@@ -30,7 +30,7 @@ py-algorand-sdk
 
 I also highly recommend using `python-dotenv` to store sensitive information and avoid committing them to a public repository. Flask also has inbuilt functionality with `python-dotenv`, allowing Flask environment variables to be automatically stored in any `.env` file. However, in this solution I'll put the values in the code, which you can replace.
 
-In order to access the algorand nextwork, you need to be running a node. You can do this yourself, but it might be easier to grab an API key from a third party, such as at https://developer.purestake.io/login.
+In order to access the algorand network, you need to be running a node. You can do this yourself, but it might be easier to grab an API key from a third party, such as at https://developer.purestake.io/login.
 
 You will need to use a virtual environment to correctly use Flask. This can be done as follows (these commands use Windows):
 
