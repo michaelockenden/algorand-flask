@@ -17,7 +17,7 @@ If you would like to see the final project, or if you're unsure about the file s
 # Introduction and Setup
 
 Flask is most well known for being able to quickly put together websites, however it is capable of more sturdy features.
-We'll acheive this by also using Flask-WTF and Flask-Login.
+We'll achieve this by also using Flask-WTF and Flask-Login.
 
 Along with the Python Algorand SDK, our requirements file should look like this:
 
