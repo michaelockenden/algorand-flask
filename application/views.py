@@ -59,13 +59,11 @@ def create():
 def transactions():
     """Displays all transactions from the user"""
     form = FilterForm()
-    txns = current_user.get_transactions()
 
-    # filter list of transactions based on address
     if form.validate_on_submit():
-        txns = filter(lambda x:
-                      form.substring.data.lower() in x['address'].lower(),
-                      txns)
+        txns = current_user.get_transactions(form.substring.data)
+    else:
+        txns = current_user.get_transactions("")
 
     return render_template('transactions.html', txns=txns, form=form)
 
@@ -75,13 +73,11 @@ def transactions():
 def assets():
     """Displays all assets owned by the user"""
     form = FilterForm()
-    assets_list = current_user.get_assets()
 
-    # filter list of assets based on asset name
     if form.validate_on_submit():
-        assets_list = filter(lambda x:
-                             form.substring.data.lower() in x['params']['name'].lower(),
-                             assets_list)
+        assets_list = current_user.get_assets(form.substring.data)
+    else:
+        assets_list = current_user.get_assets("")
 
     return render_template('assets.html', assets=assets_list, form=form)
 
