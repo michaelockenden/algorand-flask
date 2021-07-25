@@ -307,7 +307,7 @@ class SendForm(FlaskForm):
 ```
 
 This provides some of the parameters necessary for sending a transaction. WTForms, which is included with Flask-WTF, provides several validators to make our lives easier.
-This means we can prevent errors when know will fail before calling the algod client.
+This means we can prevent errors we know will fail before calling the algod client.
 `algosdk.constants` gives us the values we need to validate our form.
 
 Under `views.py`, we can add a new route:
@@ -1195,8 +1195,7 @@ Next we will display all the created assets under the Asset page.
 
 ## Displaying Created Assets
 
-Creating an assets creates a special transaction for the user,
-and so just like before, we will use the indexer to find and display these transactions.
+Created assets can be displayed using the indexer. We can query assets using the current account's address as the creator parameter.
 
 As always, we use our User model to input the current user address.
 
@@ -1281,7 +1280,7 @@ You could also add options to distribute or revoke assets, as well as view asset
 # Filtering Transactions and Assets
 
 The final feature we will add is the ability to filter a given list of transactions or assets.
-This can be easily achieved using Python's `filter` function.
+This can be easily achieved by adding to our existing indexer functions.
 
 To get started we first need a new form class which we will add to `forms.py`.
 
@@ -1353,8 +1352,7 @@ def get_assets(address, name):
     return assets
 ```
 
-For assets, we can simply use the inbuilt indexer to filter. 
-However, for transactions we need to filter the second address ourselves.
+For assets, we can simply use the inbuilt functionality to filter by name. However, for transactions we need to filter for the second address ourselves.
 
 `models.py`
 
