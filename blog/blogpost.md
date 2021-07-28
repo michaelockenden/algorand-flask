@@ -8,16 +8,19 @@ This wallet will feature:
 - Creating an account
 - Viewing all sent/received transactions
 - Creating and displaying assets
+- Filtering displayed assets and transactions
+
+
 
 As a warning, this project has been not audited and should not be used in a production environment.
 
 If you would like to see the final project, or if you're unsure about the file structure, you can check out the [GitHub repository](https://github.com/michaelockenden/algorand-flask).
 
 
+
 # Introduction and Setup
 
-Flask is most well known for being able to quickly put together websites, however it is capable of more sturdy features.
-We'll achieve this by also using Flask-WTF and Flask-Login.
+Flask is most well known for being able to quickly put together websites, however it is capable of more sturdy features. We'll achieve this by also using Flask-WTF and Flask-Login.
 
 Along with the Python Algorand SDK, our requirements file should look like this:
 
@@ -30,7 +33,11 @@ py-algorand-sdk
 
 I also highly recommend using `python-dotenv` to store sensitive information and avoid committing them to a public repository. Flask also has inbuilt functionality with `python-dotenv`, allowing Flask environment variables to be automatically stored in any `.env` file. However, in this solution I'll put the values in the code, which you can replace.
 
-In order to access the algorand network, you need to be running a node. You can do this yourself, but it might be easier to grab an API key from a third party, such as at https://developer.purestake.io/login.
+
+
+In order to access the Algorand network, you need to be running a node. You can do this yourself, but it might be easier to grab an API key from a third party, such as at https://developer.purestake.io/login.
+
+
 
 You will need to use a virtual environment to correctly use Flask. This can be done as follows (these commands use Windows):
 
@@ -38,10 +45,14 @@ You will need to use a virtual environment to correctly use Flask. This can be d
 - Inside your project directory, type in `py -m venv venv`
 - Activate your virtual environment with `.\venv\Scripts\activate`
 
+
+
 # Creating the initial Flask application
 
 To begin, first create a file structure as shown:
+
 ```bash
+.
 └── your_project_name/
     ├── venv/
     ├── your_application_name/
@@ -51,11 +62,12 @@ To begin, first create a file structure as shown:
     └── wsgi.py
 ```
 
-`requirements.txt` should be filled with the requirements mentioned earlier. We can install this with `pip install -r requirements.txt`. Make sure your virtual environment is activated.
+`requirements.txt` should be filled with the requirements mentioned earlier. We can then install this with `pip install -r requirements.txt`. Make sure your virtual environment is activated when doing so.
 
 The remaining files should be filled out as such:
 
-`__init__.py`:
+`your_application_name/__init__.py`:
+
 ```python
 from flask import Flask
 
@@ -68,7 +80,10 @@ def create_app():
     return app
 ```
 
-`views.py`:
+
+
+`your_application_name/views.py`:
+
 ```python
 from flask import Blueprint
 
@@ -83,7 +98,10 @@ def index():
     return "Algorand Balance"
 ```
 
+
+
 `wsgi.py`:
+
 ```python
 from your_application_name import create_app
 
@@ -92,6 +110,8 @@ app = create_app()
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
 ```
+
+
 
 This can be run with `flask run`. It is important to note that `flask run` will by default look for a file called `wsgi.py` so don't rename it.
 
@@ -107,26 +127,31 @@ def index():
     return "Algorand Balance"
 ```
 
+
+
 The reason we've structured it like this is for a lot more flexibility. As we start adding more features, a single `app.py` will quickly become overcrowded and hard to use. What we've done is used a Flask Blueprint to separate components.
 
 Now you might be wondering about the static and template folders mentioned in `views.py`. These are to store the project's CSS and HTML, respectively. We can add these folders as so:
 
 ```bash
-└── your_project_name/
-    ├── venv/
-    ├── your_application_name/
-    │   ├── static/
-    │   │   └── css/
-    │   ├── templates/
-    │   ├── __init__.py
-    │   └── views.py
-    ├── requirements.txt
-    └── wsgi.py
+.
+├── venv/
+├── your_application_name/
+│   ├── static/
+│   │   └── css/
+│   ├── templates/
+│   ├── __init__.py
+│   └── views.py
+├── requirements.txt
+└── wsgi.py
 ```
+
+
 
 Now create `style.css` inside `css` and `layout.html` inside `templates`.
 
-`style.css`
+`your_application_name/static/css/style.css`
+
 ```css
 body {
     margin: 0;
@@ -150,7 +175,10 @@ body {
 }
 ```
 
-`layout.html`
+
+
+`your_application_name/templates/layout.html`
+
 ```html
 <!doctype html>
 <html lang="en">
@@ -171,7 +199,8 @@ body {
 
 Flask contains Jinja2, which we can use to add logic to HTML using the curly braces. We can create the `index.html` file which extends from this layout.
 
-`index.html`
+`your_application_name/templates/index.html`
+
 ```html
 {% extends 'layout.html' %}
 
@@ -181,6 +210,8 @@ Flask contains Jinja2, which we can use to add logic to HTML using the curly bra
 ```
 
 How this works is that by extending from `layout.html`, the blocks in `index.html` replace the blocks in `layout.html`.
+
+
 
 Now in order to display the new index page, we need to render it with Flask.
 Replace `views.py` with:
@@ -199,6 +230,8 @@ def index():
     return render_template('index.html')
 ```
 
+
+
 Running `flask run` again should now give a page looking like this:
 
 ![initial_page](initial.png)
@@ -208,6 +241,8 @@ Running `flask run` again should now give a page looking like this:
 Now we should start thinking about getting account information. To do this, we can use the algod client.
 
 Create a new file called `algod.py` inside the `your_application_name` directory.
+
+`your_application_name/algod.py`
 
 ```python
 from algosdk import account, mnemonic
@@ -234,13 +269,11 @@ def get_balance(address):
     return balance
 ```
 
-This method uses Purestake.io to connect to the algod client. After putting in your API key, 
-run `passphrase = create_account()` to generate a TestNet account and save the passphrase. Make sure you store this somewhere because we'll be using it a lot before implementing a login system.
+This method uses Purestake.io to connect to the algod client. After putting in your API key, run `passphrase = create_account()` to generate a TestNet account and save the passphrase. Make sure you store this somewhere because we'll be using it a lot before implementing a login system.
 
 Note that we made a helper function to return the algod client whenever. From now on, we'll be calling this function to use the client, so be sure to use `algod_client()` and not `algod_client`.
 
-Now we can get the balance of our new account by running `balance = get_balance(mnemonic.to_public_key(passphrase))`. 
-We need to convert the account passphrase into its public key - the address - in order to check the balance.
+Now we can get the balance of our new account by running `balance = get_balance(mnemonic.to_public_key(passphrase))`. We need to convert the account passphrase into its public key - the address - in order to check the balance.
 
 Note that by default, balance is stored in microAlgos, which is equivalent to 0.000001 Algos, the unit a wallet would normally display.
 
@@ -260,7 +293,7 @@ def index():
     return render_template('index.html', balance=balance)
 ```
 
-`index.html`:
+And to `index.html`:
 
 ```python
 {% extends 'layout.html' %}
@@ -271,15 +304,38 @@ def index():
 {% endblock %}
 ```
 
-Now using `flask run` will display the user's balance
+
+
+Now using `flask run` will display the user's balance. 
+
+Just to be sure, so far our file structure should look like this:
+
+```bash
+.
+├── venv/
+├── your_application_name/
+│   ├── static/
+│   │   └── css/
+│   │       └── style.css
+│   ├── templates/
+│   │   ├── layout.html
+│   │   └── index.html
+│   ├── __init__.py
+│   ├── algod.py
+│   └── views.py
+├── requirements.txt
+└── wsgi.py
+```
+
 
 
 # Sending transactions with the Algod Client
 
-Now that we have a working account balance, the next step should be to implement a way to send some algorands back.
-Here we'll also be working with `Flask-WTF` to create forms for these transactions.
+Now that we have a working account balance, the next step should be to implement a way to send algorand. Here we'll also be working with `Flask-WTF` to create forms for these transactions.
 
 We can start by creating a new file `forms.py` inside of `your_application_name`:
+
+`your_application_name/forms.py`
 
 ```python
 from algosdk.constants import address_len, note_max_length
@@ -306,9 +362,9 @@ class SendForm(FlaskForm):
     submit = SubmitField('Send')
 ```
 
-This provides some of the parameters necessary for sending a transaction. WTForms, which is included with Flask-WTF, provides several validators to make our lives easier.
-This means we can prevent errors we know will fail before calling the algod client.
-`algosdk.constants` gives us the values we need to validate our form.
+This provides some of the parameters necessary for sending a transaction. WTForms, which is included with Flask-WTF, provides several validators to make our lives easier. This means we can prevent errors we know will fail before calling the algod client. Meanwhile, `algosdk.constants` gives us the values we need to validate our form.
+
+
 
 Under `views.py`, we can add a new route:
 
@@ -329,9 +385,11 @@ def send():
     return render_template('send.html', form=form, address=address)
 ```
 
+
+
 We can add two new HTML files now. Both make use of our previous `layout.html`.
 
-`send.html`
+`your_application_name/templates/send.html`
 
 ```html
 {% extends 'layout.html' %}
@@ -373,7 +431,9 @@ We can add two new HTML files now. Both make use of our previous `layout.html`.
 {% endblock %}
 ```
 
-`success.html`
+
+
+`your_application_name/templates/success.html`
 
 ```html
 {% extends 'layout.html' %}
@@ -386,6 +446,8 @@ We can add two new HTML files now. Both make use of our previous `layout.html`.
 {% endif %}
 {% endblock %}
 ```
+
+
 
 Here is the CSS I like to use for forms:
 
@@ -416,13 +478,17 @@ input[type=submit]:hover {
 }
 ```
 
+
+
 Now if you do `flask run` and add `/send` to the address bar, your page should look like this:
 
 ![form](form.png)
 
-You can also add a link from your index with `<h2><a href="{{ url_for('main_bp.send') }}">Send/Receive</a></h2>`
+You can also add a link from your index with `<h2><a href="{{ url_for('main_bp.send') }}">Send/Receive</a></h2>`.
 
 Notice if you try to click submit you would just get an error. We still need to implement actually sending the algorand using the algod client.
+
+
 
 We can add to `algod.py`
 
@@ -491,16 +557,23 @@ def wait_for_confirmation(transaction_id, timeout):
         'pending tx not found in timeout rounds, timeout value = : {}'.format(timeout))
 ```
 
+
+
 Now add `from .algod import send_txn` to `views.py`.
 
-You can now test out sending algorand back to the dispenser with the address GD64YIY3TWGDMCNPP553DZPPR6LDUSFQOIJVFDPPXWEG3FVOJCCDBBHU5A.
+You can now test out sending algorand back to the dispenser with the address GD64YIY3TWGDMCNPP553DZPPR6LDUSFQOIJVFDPPXWEG3FVOJCCDBBHU5A. 
+
 Make sure you have enough funds, or the transaction will fail.
+
+
 
 # Implementing a Login System with Flask-Login
 
 Before we get too far, we need to structure our code to allow some kind of Login System. Flask-Login can handle the finer details, and we can start by first creating a User class.
 
 Create a new file `models.py` inside of `your_application_name`:
+
+`your_application_name/models.py`
 
 ```python
 from algosdk import mnemonic
@@ -535,16 +608,18 @@ class User(UserMixin):
 
 ```
 
-Normally, when creating a User class, we would also use a database to store account details.
-However, this isn't as important when working with blockchain technology.
+Normally, when creating a User class, we would also use a database to store account details. However, this isn't as important when working with blockchain technology.
 
 After inputting a passphrase, we can find the user's public key (address) and private key. We called the private key the user ID so that it will work with some Flask-Login features later. 
 
 Notice the functions `get_balance` and `send`, we'll soon be calling these from `views.py` so we no longer need to pass in our address every time.
 
-Next let's quickly create the form will be using to sign in.
 
-```forms.py```
+
+Next let's quickly create the form we will be using to sign in.
+
+`your_application_name/forms.py`
+
 ```python
 class LoginForm(FlaskForm):
     """Form for logging into an account"""
@@ -552,9 +627,12 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 ```
 
-Along with the corresponding HTML.
 
-```login.html```
+
+Along with the corresponding HTML in a new `login.html` page.
+
+`your_application_name/templates/login.html`
+
 ```html
 {% extends 'layout.html' %}
 
@@ -581,7 +659,11 @@ Along with the corresponding HTML.
 {% endblock %}
 ```
 
+
+
 Now we can create a new file called `auth.py`. This file will function similarly to `views.py` but it will only handle routes related to user authentication.
+
+`your_application_name/auth.py`
 
 ```python
 from algosdk import mnemonic
@@ -619,6 +701,8 @@ def login():
     return render_template('login.html', form=form)
 ```
 
+
+
 We are now using a new Flask Blueprint, `auth_bp`. This will need to be added to `__init__.py`.
 
 ```python
@@ -642,8 +726,9 @@ def create_app():
 
 The secret key is used to encrypt browser cookies, making it especially important for storing user information.
 
-Now, we can use Flask-Login to set routes as `login_required`, meaning they can't be accessed without an account. 
-Also, the `current_user` instance is used to retrieve information about the signed-in user. Let's now add these into our `views.py`.
+
+
+Now, we can use Flask-Login to set routes as `login_required`, meaning they can't be accessed without an account. Also, the `current_user` instance is used to retrieve information about the signed-in user. Let's now add these into our `views.py`.
 
 ```python
 from flask_login import login_required, current_user
@@ -672,6 +757,8 @@ def send():
     return render_template('send.html', form=form, address=address)
 ```
 
+
+
 Before any of this code can run, we need to add two functions to `auth.py`.
 
 ```python
@@ -687,20 +774,25 @@ def unauthorized():
     return redirect(url_for('auth_bp.login'))
 ```
 
-`load_user` gathers a user from a given ID. We named the private key our User ID, so here we get a User from a given private key.
+- `load_user` gathers a user from a given ID. We named the private key our User ID, so here we get a User from a given private key.
+
+- `unauthorized` redirects you to the login page if you haven't signed in.
 
 
-`unauthorized` redirects you to the login page if you haven't signed in.
 
 Now finally, try running the code. You should see a login page - put in your passphrase to sign in.
 
 ![login](login.png)
 
+
+
 ## Navigation Bar
 
 Now that we can sign in, we should provide an easy way to sign out. Here I provide the CSS and HTML I used for a navigation bar.
 
-`nav.html`
+
+
+`your_application_name/templates/nav.html`
 
 ```python
 <nav class="topnav">
@@ -711,6 +803,10 @@ Now that we can sign in, we should provide an easy way to sign out. Here I provi
     {% endif %}
 </nav>
 ```
+
+
+
+CSS:
 
 ```css
 .topnav {
@@ -748,11 +844,11 @@ Now that we can sign in, we should provide an easy way to sign out. Here I provi
 }
 ```
 
-You will need to include the nav bar in `layout.html`. 
-This can be done by `{% include 'nav.html' %}`.
 
-The logout route also should be defined in `views.py`. 
-This route uses `redirect()` to go back to the login page.
+
+You will need to include the nav bar in `layout.html`. This can be done by `{% include 'nav.html' %}`.
+
+The logout route also should be defined in `views.py`. This route uses `redirect()` to go back to the login page.
 
 ```python
 from flask import redirect, url_for
@@ -766,9 +862,13 @@ def logout():
     return redirect(url_for('auth_bp.login'))
 ```
 
+
+
 ![navbar](navbar.png)
 
 We can now remove our send/receive link from the index.
+
+
 
 ## Account Creation
 
@@ -787,7 +887,11 @@ def signup():
 Here we use our earlier function from `algod.py` to generate an account and its passphrase.
 Add this link `<h2><a href="{{ url_for('auth_bp.signup') }}">Create a Wallet</a></h2>` to `login.html` to access this route.
 
-However, we also need to create `mnemonic.html` this page will display the mnemonic of the created account.
+
+
+We also need to create `mnemonic.html` - this page will display the mnemonic of the created account.
+
+`your_application_name/templates/mnemonic.html`
 
 ```html
 {% extends 'layout.html' %}
@@ -800,8 +904,9 @@ However, we also need to create `mnemonic.html` this page will display the mnemo
 {% endblock %}
 ```
 
-I also added a route to this mnemonic in `views.py`. 
-This route uses the current account instead of creating a new one.
+
+
+I also added a separate route to `mnemonic.html` in `views.py`. This route uses the current account instead of creating a new one and will be used so users can view their mnemonic again if they missed it.
 
 ```python
 @main_bp.route('/mnemonic')
@@ -814,18 +919,45 @@ def mnemonic():
 
 This can be accessed with `<h2><a href="{{ url_for('main_bp.mnemonic') }}">View Recovery Passphrase</a></h2>` on `index.html`
 
-We've now finished our login system for the website. 
-You can log in using a passphrase or create an account, and then you can then log out when finished.
+
+
+We've now finished our login system for the website. You can log in using a passphrase or create an account, and then you can then log out when finished. Our file structure should look like this:
+
+```bash
+.
+├── venv/
+├── your_application_name/
+│   ├── static/
+│   │   └── css/
+│   │       └── style.css
+│   ├── templates/
+│   │   ├── index.html
+│   │   ├── layout.html
+│   │   ├── login.html
+│   │   ├── mnemonic.html
+│   │   ├── nav.html
+│   │   ├── send.html
+│   │   └── success.html
+│   ├── __init__.py
+│   ├── algod.py
+│   ├── auth.py
+│   ├── forms.py
+│   ├── models.py
+│   └── views.py
+├── requirements.txt
+└── wsgi.py
+```
+
 
 
 # Displaying Transactions using the Indexer
 
-The indexer is used to retrieve all transactions on the blockchain.
-We can then filter this to all transactions related to the current account.
+The indexer is used to retrieve all transactions on the blockchain. We can then filter this to all transactions related to the current account.
 
 Let's start by creating a new file `indexer.py`, here we will put all indexer processes.
 
-`indexer.py`
+`your_application_name/indexer.py`
+
 ```python
 from algosdk.constants import microalgos_to_algos_ratio
 from algosdk.v2client import indexer
@@ -865,14 +997,11 @@ def get_transactions(address):
 
 `myindexer()` is a helper function just like `algod_client()`. 
 
-`get_transactions` works by looping through each payment transaction related to the address.
-It works to create a new list we want display on our website.
-If the given address is also the sender, we want to also add the fee the sender paid
-and display the total cost as negative. 
+`get_transactions` works by looping through each payment transaction related to the address. If the given address (the current user) is also the sender, we want to also add the fee the sender paid and display the total cost as negative. 
 
-We return a list of dictionaries that includes an `"amount"` and an `"address"`. 
-`"amount"` will show the money entering/leaving the user's account and `"address"`
-will show the other address the transaction was completed with.
+We return a list of dictionaries that includes an `"amount"` and an `"address"`. `"amount"` will show the money entering/leaving the user's account and `"address"` will show the other address the transaction was completed with.
+
+
 
 Now, as usual, we can add a route in `views.py` to call this function.
 
@@ -885,7 +1014,11 @@ def transactions():
     return render_template('transactions.html', txns=txns)
 ```
 
-`transactions.html` should look like this:
+
+
+The new file `transactions.html` should look like this:
+
+`your_application_name/transactions.html`
 
 ```html
 {% extends 'layout.html' %}
@@ -908,7 +1041,10 @@ def transactions():
 {% endblock %}
 ```
 
+
+
 With the following CSS:
+
 ```css
 table {
     text-align: left;
@@ -923,12 +1059,13 @@ th, td {
 }
 ```
 
+
+
 Don't forget to add `transaction.html` to the navbar!
 
-If you tried running now you would still get error - we need to add `get_transactions` to the user model
-so that we can add the user's address.
+If you tried running now you would still get error - we need to add `get_transactions` to the user model so that we can add the current user's address to our indexer function.
 
-`models.py`
+`your_application_name/models.py`
 
 ```python
 from .indexer import get_transactions
@@ -942,26 +1079,60 @@ class User(UserMixin):
         return get_transactions(self.public_key)
 ```
 
+
+
 Now we can run, and view all transactions.
 
 ![transactions](transactions.png)
 
+
+
 If you want to, you could also try displaying negative transactions as red, and positive transactions as green.
+
+At this point, your file structure should look like this:
+
+```bash
+.
+├── venv/
+├── your_application_name/
+│   ├── static/
+│   │   └── css/
+│   │       └── style.css
+│   ├── templates/
+│   │   ├── index.html
+│   │   ├── layout.html
+│   │   ├── login.html
+│   │   ├── mnemonic.html
+│   │   ├── nav.html
+│   │   ├── send.html
+│   │   ├── success.html
+│   │   └── transactions.html
+│   ├── __init__.py
+│   ├── algod.py
+│   ├── auth.py
+│   ├── forms.py
+│   ├── indexer.py
+│   ├── models.py
+│   └── views.py
+├── requirements.txt
+└── wsgi.py
+```
+
 
 
 # Working with Assets
 
-Assets can be used for a variety of purposes within the Algorand network.
-We're only going to look at creating assets and displaying the created assets.
+Assets can be used for a variety of purposes within the Algorand network. We're only going to look at creating assets and displaying the created assets.
 
-For more information on assets and what you can do with them, I recommend
-reading about them on the [Developer Portal](https://developer.algorand.org/docs/features/asa/).
+For more information on assets and what you can do with them, I recommend reading about them on the [Developer Portal](https://developer.algorand.org/docs/features/asa/).
+
+
 
 ## Asset Creation Form
 
 In order to create assets, we'll first need a new form class.
 
-`forms.py`
+`your_application_name/forms.py`
 
 ```python
 from algosdk.constants import max_asset_decimals
@@ -998,8 +1169,9 @@ class AssetForm(FlaskForm):
     submit = SubmitField('Create')
 ```
 
-The is one more necessary parameter for creating an asset - the creator address.
-We will automatically put the current user's address as the creator.
+
+
+There is one more necessary parameter for creating an asset - the creator address. We will automatically put the current user's address as the creator.
 
 There are also four other addresses an asset can use:
 - Manager address
@@ -1007,10 +1179,13 @@ There are also four other addresses an asset can use:
 - Reserve address
 - Clawback address
 
-These addresses are granted special permissions related to the asset. 
-For simplicity's sake, we'll set also set these addresses to the current user's address.
+These addresses are granted special permissions related to the asset. For simplicity's sake, we'll set also set these addresses to the current user's address.
+
+
 
 Now create an `assets.html` pages in `templates`
+
+`your_application_name/templates/assets.html`
 
 ```html
 {% extends 'layout.html' %}
@@ -1021,7 +1196,9 @@ Now create an `assets.html` pages in `templates`
 {% endblock %}
 ```
 
-We'll later display our created assets here. 
+We'll later also display our created assets here. 
+
+
 
 Now let's add the same routes into `views.py`.
 
@@ -1054,7 +1231,11 @@ def create():
     return render_template('create_asset.html', form=form)
 ```
 
+
+
 We'll need to create the HTML page for the form now.
+
+`your_application_name/templates/create_asset.html`
 
 ```html
 {% extends 'layout.html' %}
@@ -1097,16 +1278,19 @@ We'll need to create the HTML page for the form now.
 {% endblock %}
 ```
 
+
+
 After adding Assets to the navbar, we should be able to get a form looking like this:
 
 ![create](create.png)
 
 Of course, this won't work until we implement the backend of creating an asset.
 
+
+
 ## Creating Assets with the Algod Client
 
-Under `models.py`, we can create a new method. 
-This method will add the current user's public and private keys to the parameters needed to create an asset.
+Under `models.py`, we can create a new method. This method will add the current user's public and private keys to the parameters needed to create an asset.
 
 ```python
 from .algod import create_asset
@@ -1137,7 +1321,9 @@ class User(UserMixin):
         )    
 ```
 
-Now we can implement the `create_asset` function in `algod.py`.
+
+
+Now let's implement the `create_asset` function in `algod.py`.
 
 ```python
 from algosdk.future.transaction import AssetConfigTxn
@@ -1190,8 +1376,9 @@ def create_asset(
         return None    
 ```
 
-You can now test out creating an asset, but you won't see any feedback.
-Next we will display all the created assets under the Asset page.
+You can now test out creating an asset, but you won't see any feedback just yet. Next we will display all the created assets under the Asset page.
+
+
 
 ## Displaying Created Assets
 
@@ -1199,7 +1386,7 @@ Created assets can be displayed using the indexer. We can query assets using the
 
 As always, we use our User model to input the current user address.
 
-`models.py`
+`your_application_name/models.py`
 
 ```python
 from .indexer import get_assets
@@ -1213,9 +1400,11 @@ class User(UserMixin):
         return get_assets(self.public_key)
 ```
 
-Now we can use the indexer to find all created assets from the given address
 
-`indexer.py`
+
+Now we can use the indexer to find all created assets from the given address.
+
+`your_application_name/indexer.py`
 
 ```python
 def get_assets(address):
@@ -1226,9 +1415,11 @@ def get_assets(address):
     return assets
 ```
 
-Now lets update `views.py` and `assets.html` to display the given list.
 
-`views.py`
+
+Now let's update `views.py` and `assets.html` to display the given list.
+
+`your_application_name/views.py`
 
 ```python
 @main_bp.route('/assets')
@@ -1239,7 +1430,9 @@ def assets():
     return render_template('assets.html', assets=assets_list)
 ```
 
-`assets.html`
+
+
+`your_application_name/templates/assets.html`
 
 ```html
 {% extends 'layout.html' %}
@@ -1270,17 +1463,56 @@ def assets():
 {% endblock %}
 ```
 
+
+
 Now we can finally view our created assets.
 
 ![assets](assets.png)
 
-As I mentioned before, there is a lot to do with assets.
-You could also add options to distribute or revoke assets, as well as view asset holdings.
+
+
+As I mentioned before, there is a lot to do with assets. You could also add options to distribute or revoke assets, as well as view asset holdings.
+
+
+
+We now have our final file structure:
+
+```bash
+.
+├── venv/
+├── your_application_name/
+│   ├── static/
+│   │   └── css/
+│   │       └── style.css
+│   ├── templates/
+│   │   ├── assets.html
+│   │   ├── create_asset.html
+│   │   ├── index.html
+│   │   ├── layout.html
+│   │   ├── login.html
+│   │   ├── mnemonic.html
+│   │   ├── nav.html
+│   │   ├── send.html
+│   │   ├── success.html
+│   │   └── transactions.html
+│   ├── __init__.py
+│   ├── algod.py
+│   ├── auth.py
+│   ├── forms.py
+│   ├── indexer.py
+│   ├── models.py
+│   └── views.py
+├── requirements.txt
+└── wsgi.py
+```
+
+
 
 # Filtering Transactions and Assets
 
-The final feature we will add is the ability to filter a given list of transactions or assets.
-This can be easily achieved by adding to our existing indexer functions.
+The final feature we will add is the ability to filter a given list of transactions or assets. This can be easily achieved by adding to our existing indexer functions.
+
+
 
 To get started we first need a new form class which we will add to `forms.py`.
 
@@ -1295,9 +1527,11 @@ class FilterForm(FlaskForm):
     submit = SubmitField('Search')
 ```
 
-Now we should add the required HTML to `transactions.html` and `assets.html`.
 
-`transactions.html`
+
+Now we should add the required HTML for the form to `transactions.html` and `assets.html`.
+
+`your_application_name/templates/transactions.html`
 
 ```html
 <form action="{{ url_for('main_bp.transactions') }}" method="post">
@@ -1310,9 +1544,11 @@ Now we should add the required HTML to `transactions.html` and `assets.html`.
 
 This can be reused in `assets.html` by replacing `url_for('main_bp.transactions')` with `url_for('main_bp.assets')`.
 
+
+
 Now we need to update `indexer.py`, `models.py` and `views.py` to allow filtering.
 
-`indexer.py`
+`your_application_name/indexer.py`
 
 ```python
 def get_transactions(address, substring):
@@ -1354,7 +1590,9 @@ def get_assets(address, name):
 
 For assets, we can simply use the inbuilt functionality to filter by name. However, for transactions we need to filter for the second address ourselves.
 
-`models.py`
+
+
+`your_application_name/models.py`
 
 ```python
 def get_transactions(self, substring):
@@ -1366,7 +1604,9 @@ def get_assets(self, name):
     return get_assets(self.public_key, name)
 ```
 
-`views.py`
+
+
+`your_application_name/views.py`
 
 ```python
 @main_bp.route('/transactions', methods=['GET', 'POST'])
@@ -1398,20 +1638,23 @@ def assets():
 ```
 
 It is important to add the `POST` method to these functions for the form to work.
-Now we have a working transaction filter -
+
+
+
+This gives us a working transaction filter by address:
 
 ![t_filter](transaction_filter.png)
 
-And an asset filter -
+And an asset filter by name:
 
 ![a_filter](asset_filter.png)
+
+
 
 # Conclusion
 
 Now we finally have our working demo wallet. Thanks for reading this far, I hope this project walkthrough has been useful!
 
 From here there are a lot more possibilities. Another feature could be to store multiple accounts on one wallet, for example.
-
-There is also a public [GitHub repository](https://github.com/michaelockenden/algorand-flask), if you want to see the final product.
 
 Finally, remember to never use the MainNet, unless you have robust security features, and never commit files with sensitive information.
