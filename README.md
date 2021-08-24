@@ -1,4 +1,4 @@
-# An Algorand Application built using Flask
+# Creating a demo Algorand wallet using Flask
 
 This project features a demo wallet using Flask and the Algorand Python SDK. The accompanying tutorial can be found [here](https://developer.algorand.org/solutions/creating-a-demo-wallet-using-flask/).
 
