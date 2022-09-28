@@ -9,7 +9,7 @@ def algod_client():
 
     algod_address = "https://testnet-algorand.api.purestake.io/ps2"
     # FIXME: Put your API key in
-    algod_token = "YOUR API KEY GOES HERE"
+    algod_token = "aPubZNdg2Y10ADA7lnMoUa7UO808BfneaneiddG0"
     headers = {
         "X-API-Key": algod_token,
     }
